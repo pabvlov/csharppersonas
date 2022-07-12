@@ -16,7 +16,7 @@ namespace form.Models.DAL
                 using (SqlConnection con = new SqlConnection(conexion.GetConnectionString()))
                 {
 
-                    string sql = "select * from persona";
+                    string sql = "select * from uwu.persona";
                     using (SqlCommand command = new SqlCommand(sql, con))
                     {
                         command.CommandType = System.Data.CommandType.Text;
@@ -26,7 +26,9 @@ namespace form.Models.DAL
                         {
                             Persona p = new Persona(reader["nombre"].ToString(), reader["apellido"].ToString());
                             p.Id = int.Parse(reader["id"].ToString());
+                            p.direcciones = getDireccionById(int.Parse(reader["id"].ToString()));
                             personas.Add(p);
+                            
                         }
                         con.Close();
                     }
@@ -39,21 +41,43 @@ namespace form.Models.DAL
                return personas;
         }
 
+        public List<Direccion> getDireccionById(int id)
+        {
+            List<Direccion> direcciones = new List<Direccion>();
+            string sql = "select d.id, d.direccion from uwu.persona_tiene_direcciones pd join uwu.direccion d on pd.id_direccion = d.id where pd.id_persona = " + id;
+            using (SqlConnection con = new SqlConnection(conexion.GetConnectionString()))
+            {
+                using (SqlCommand command = new SqlCommand(sql, con))
+                {
+                    command.CommandType = System.Data.CommandType.Text;
+                    con.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Direccion d = new Direccion(int.Parse(reader["id"].ToString()), reader["direccion"].ToString());
+                        direcciones.Add(d);
+                    }
+                    con.Close();
+                }
+            }
+            return direcciones;
+        }
+
         public void agregar(Persona persona)
         {
-            string sql = "insert into persona (nombre, apellido) values ('" + persona.nombre + "', '" + persona.apellido + "')";
+            string sql = "insert into uwu.persona (nombre, apellido) values ('" + persona.nombre + "', '" + persona.apellido + "')";
             query(sql);
         }
 
         public void borrar(int id)
         {
-            string sql = "DELETE FROM persona WHERE id=" + id + ";";
+            string sql = "DELETE FROM uwu.persona WHERE id=" + id + ";";
             query(sql);
         }
 
         public void modificar(int id, string nombre, string apellido)
         {
-            string sql = "UPDATE persona SET nombre = '" + nombre + "', apellido = '" + apellido + "' WHERE id=" + id + ";";
+            string sql = "UPDATE uwu.persona SET nombre = '" + nombre + "', apellido = '" + apellido + "' WHERE id=" + id + ";";
             query(sql);
         }
 
